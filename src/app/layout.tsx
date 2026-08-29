@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
-import Providers from "@/components/Providers";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -11,7 +10,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "1337 Transfer Tracker",
   description:
-    "Track Moroccan 42 students transferring to global 42 campuses",
+    "Moroccan 42 students who've traveled to global 42 campuses",
 };
 
 export default function RootLayout({
@@ -21,9 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={spaceGrotesk.variable}>
-      <body className="font-sans">
-        <Providers>{children}</Providers>
-      </body>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }
