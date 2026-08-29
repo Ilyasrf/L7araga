@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import StarsBackground from "@/components/StarsBackground";
 import FilterBar from "@/components/FilterBar";
@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   const [promos, setPromos] = useState<string[]>([]);
 
-  const fetchHolders = async () => {
+  const fetchHolders = useCallback(async () => {
     const params = new URLSearchParams();
     if (filterCampus !== "All") params.set("campus", filterCampus);
     if (filterPromo !== "All") params.set("promo", filterPromo);
@@ -32,11 +32,11 @@ export default function DashboardPage() {
     // Extract unique promos for filter
     const uniquePromos = Array.from(new Set(data.map((h: AchievementHolderType) => h.promo).filter(Boolean))) as string[];
     setPromos(uniquePromos.sort().reverse());
-  };
+  }, [filterCampus, filterPromo, filterLimit]);
 
   useEffect(() => {
     fetchHolders();
-  }, [filterCampus, filterPromo, filterLimit]);
+  }, [fetchHolders]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
