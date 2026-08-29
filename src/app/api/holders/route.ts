@@ -5,7 +5,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const campus = searchParams.get("campus");
   const promo = searchParams.get("promo");
-  const limit = parseInt(searchParams.get("limit") || "100");
+  const rawLimit = parseInt(searchParams.get("limit") || "100");
+  const limit = Math.min(Math.max(isNaN(rawLimit) ? 100 : rawLimit, 1), 200);
 
   const where: Record<string, unknown> = {};
 
