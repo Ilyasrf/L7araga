@@ -40,6 +40,20 @@ export async function PATCH(request: Request) {
   const body = await request.json();
   const { targetCampus, transferStatus } = body;
 
+  const VALID_STATUSES = [
+    "SEEKING_SWAP",
+    "HOST_NEEDED",
+    "VISA_PROCESS",
+    "APPROVED",
+  ];
+
+  if (transferStatus && !VALID_STATUSES.includes(transferStatus)) {
+    return NextResponse.json(
+      { error: "Invalid transfer status" },
+      { status: 400 },
+    );
+  }
+
   const intraId = (session.user as { intraId: number }).intraId;
 
   const updated = await prisma.user.update({
