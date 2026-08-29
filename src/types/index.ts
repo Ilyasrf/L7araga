@@ -1,37 +1,25 @@
-export type TransferStatusType =
-  | "SEEKING_SWAP"
-  | "HOST_NEEDED"
-  | "VISA_PROCESS"
-  | "APPROVED";
-
-export interface UserType {
+export interface AchievementHolderType {
   id: string;
   intraId: number;
   login: string;
-  email?: string | null;
-  image?: string | null;
-  slackLogin?: string | null;
-  originCampus: string;
-  targetCampus: string;
-  transferStatus: TransferStatusType;
+  displayName: string | null;
+  imageUrl: string | null;
+  campusName: string;
+  campusId: number;
+  promo: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface SessionUser {
-  id: string;
-  intraId: number;
-  login: string;
-  email?: string | null;
-  image?: string | null;
-  originCampus: string;
-  targetCampus: string;
-  transferStatus: TransferStatusType;
+export interface HolderFilters {
+  campus?: string;
+  promo?: string;
+  limit?: number;
 }
 
-export const TRANSFER_STATUS_LABELS: Record<TransferStatusType, string> = {
-  SEEKING_SWAP: "Seeking Swap",
-  HOST_NEEDED: "Host Needed",
-  VISA_PROCESS: "Visa Process",
-  APPROVED: "Approved",
-};
+export interface SyncResult {
+  success: boolean;
+  synced: number;
+  errors: string[];
+  timestamp: string;
+}
