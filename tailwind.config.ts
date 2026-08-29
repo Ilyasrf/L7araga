@@ -8,12 +8,32 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Space Grotesk", "sans-serif"],
+      },
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        neon: {
+          cyan: "#06b6d4",
+          purple: "#a855f7",
+          green: "#22c55e",
+          amber: "#f59e0b",
+        },
+      },
+      backdropBlur: {
+        xs: "2px",
+      },
+      animation: {
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite alternate",
+      },
+      keyframes: {
+        "glow-pulse": {
+          "0%": { boxShadow: "0 0 5px rgba(6, 182, 212, 0.3)" },
+          "100%": { boxShadow: "0 0 20px rgba(6, 182, 212, 0.6)" },
+        },
       },
     },
   },
   plugins: [],
 };
+
 export default config;
