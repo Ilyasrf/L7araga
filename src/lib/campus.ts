@@ -1,71 +1,45 @@
-export const MOROCCAN_CAMPUSES = ["Khouribga", "Ben Guerir", "Med"] as const;
+export interface CampusInfo {
+  id: number;
+  name: string;
+  displayName: string;
+}
 
-export type MoroccanCampus = (typeof MOROCCAN_CAMPUSES)[number];
+export const MOROCCAN_CAMPUSES: CampusInfo[] = [
+  { id: 43, name: "Med", displayName: "Tétouan" },
+  { id: 16, name: "Khouribga", displayName: "Khouribga" },
+  { id: 21, name: "Ben Guerir", displayName: "Ben Guerir" },
+];
 
-export const CAMPUS_FLAGS: Record<string, string> = {
-  Paris: "🇫🇷",
-  London: "🇬🇧",
-  "Abu Dhabi": "🇦🇪",
-  Lisbon: "🇵🇹",
-  Berlin: "🇩🇪",
-  Barcelona: "🇪🇸",
-  Amsterdam: "🇳🇱",
-  Helsinki: "🇫🇮",
-  Tokyo: "🇯🇵",
-  Seoul: "🇰🇷",
-  "San Francisco": "🇺🇸",
-  "New York": "🇺🇸",
-  Toronto: "🇨🇦",
-  Montreal: "🇨🇦",
-  "São Paulo": "🇧🇷",
-  Mumbai: "🇮🇳",
-  Singapore: "🇸🇬",
-  Shanghai: "🇨🇳",
-  Beijing: "🇨🇳",
-  Jerusalem: "🇮🇱",
-  Cairo: "🇪🇬",
-  Amman: "🇯🇴",
-  Casablanca: "🇲🇦",
-  Lausanne: "🇨🇭",
-  Milan: "🇮🇹",
-  Warsaw: "🇵🇱",
-  Prague: "🇨🇿",
-  Lyon: "🇫🇷",
-  Brussels: "🇧🇪",
-  Madrid: "🇪🇸",
-  Cologne: "🇩🇪",
-  Munich: "🇩🇪",
-  Vienna: "🇦🇹",
-  Oslo: "🇳🇴",
-  Stockholm: "🇸🇪",
-  Copenhagen: "🇩🇰",
-  Dublin: "🇮🇪",
-  Bucharest: "🇷🇴",
-  Budapest: "🇭🇺",
-  Ljubljana: "🇸🇮",
-  Malaga: "🇪🇸",
-};
+export const CAMPUS_MAP: Record<number, CampusInfo> = Object.fromEntries(
+  MOROCCAN_CAMPUSES.map((c) => [c.id, c])
+);
 
-export const CAMPUSES = Object.keys(CAMPUS_FLAGS).sort();
+export const CAMPUS_NAMES = MOROCCAN_CAMPUSES.map((c) => c.displayName);
 
-export function detectOriginCampus(
-  campusUsers: Array<{ campus?: { name?: string } }>
-): MoroccanCampus | "Unknown" {
-  const campusNames = campusUsers
-    .map((cu) => cu.campus?.name)
-    .filter(Boolean);
+export const CAMPUSES = MOROCCAN_CAMPUSES.map((c) => c.name);
 
-  for (const name of campusNames) {
-    if (name === "Khouribga") return "Khouribga";
-    if (name === "Ben Guerir") return "Ben Guerir";
-    if (name === "Med") return "Med";
-  }
+export function detectCampusId(campusName: string): number | null {
+  const campus = MOROCCAN_CAMPUSES.find(
+    (c) => c.name === campusName || c.displayName === campusName
+  );
+  return campus?.id ?? null;
+}
 
-  return "Unknown";
+export function getCampusDisplayName(campusName: string): string {
+  const campus = MOROCCAN_CAMPUSES.find(
+    (c) => c.name === campusName || c.displayName === campusName
+  );
+  return campus?.displayName ?? campusName;
 }
 
 export function getCampusFlag(campusName: string): string {
-  return CAMPUS_FLAGS[campusName] || "🌍";
+  const flags: Record<string, string> = {
+    Khouribga: "🇲🇦",
+    "Ben Guerir": "🇲🇦",
+    Tétouan: "🇲🇦",
+    Med: "🇲🇦",
+  };
+  return flags[campusName] || "🌍";
 }
 
 export function getOriginCampusColor(campus: string): string {
