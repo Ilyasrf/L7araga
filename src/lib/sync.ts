@@ -60,18 +60,58 @@ function extractPromo(user: Holder42): string | null {
   return null;
 }
 
-async function fetchCampusUsers(campusId: number, token: string): Promise<Holder42[]> {
+async function fetchPage(
+  campusId: number,
+  page: number,
+  token: string
+): Promise<Holder42[]> {
   const response = await fetch(
-    `https://api.intra.42.fr/v2/campus/${campusId}/users?per_page=100&page=1`,
+    `https://api.intra.42.fr/v2/campus/${campusId}/users?per_page=100&page=${page}`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
 
+  if (response.status === 429) {
+    const retryAfter = response.headers.get("Retry-After") || "2";
+    await new Promise((r) => setTimeout(r, parseInt(retryAfter) * 1000));
+    return fetchPage(campusId, page, token);
+  }
+
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`API request failed for campus ${campusId}: ${response.status} - ${body}`);
+    throw new Error(`API ${response.status} for campus ${campusId} page ${page}`);
   }
 
   return response.json();
+}
+
+async function fetchAllCampusUsers(
+  campusId: number,
+  token: string,
+  maxPages: number
+): Promise<Holder42[]> {
+  const allUsers: Holder42[] = [];
+  const CONCURRENCY = 5;
+
+  for (let batch = 0; batch < maxPages; batch += CONCURRENCY) {
+    const pages = Array.from(
+      { length: Math.min(CONCURRENCY, maxPages - batch) },
+      (_, i) => batch + i + 1
+    );
+
+    const results = await Promise.all(
+      pages.map((p) => fetchPage(campusId, p, token))
+    );
+
+    for (const pageUsers of results) {
+      allUsers.push(...pageUsers);
+      if (pageUsers.length < 100) return allUsers;
+    }
+
+    if (batch + CONCURRENCY < maxPages) {
+      await new Promise((r) => setTimeout(r, 500));
+    }
+  }
+
+  return allUsers;
 }
 
 async function upsertHolders(
@@ -115,10 +155,20 @@ async function upsertHolders(
   return { synced, errors };
 }
 
-export async function syncCampus(campusId: number): Promise<{ synced: number; errors: string[] }> {
-  const token = await getAccessToken();
+const CAMPUS_MAX_PAGES: Record<number, number> = {
+  16: 60,
+  21: 50,
+  55: 15,
+};
 
-  const campusUsers = await fetchCampusUsers(campusId, token);
+export async function syncCampus(
+  campusId: number,
+  maxPages?: number
+): Promise<{ synced: number; errors: string[] }> {
+  const token = await getAccessToken();
+  const pages = maxPages || CAMPUS_MAX_PAGES[campusId] || 10;
+
+  const campusUsers = await fetchAllCampusUsers(campusId, token, pages);
 
   console.log(`Campus ${campusId}: ${campusUsers.length} users fetched`);
 
