@@ -3,6 +3,9 @@ import { getAccessToken } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiUser = Record<string, any>;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const campusId = parseInt(searchParams.get("campus") || "16");
@@ -21,9 +24,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: `API ${response.status}: ${body}` });
     }
 
-    const users = await response.json();
+    const users: ApiUser[] = await response.json();
 
-    const debug = users.map((u: any) => ({
+    const debug = users.map((u) => ({
       id: u.id,
       login: u.login,
       displayname: u.displayname,
