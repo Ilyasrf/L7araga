@@ -130,13 +130,9 @@ export async function syncCampus(campusId: number): Promise<{ synced: number; er
 
   const campusUsers = await fetchCampusUsers(campusId, token);
 
-  const holders = campusUsers.filter((user) =>
-    user.campus_users?.some((cu) => cu.campus?.id !== campusId)
-  );
+  console.log(`Campus ${campusId}: ${campusUsers.length} users fetched`);
 
-  console.log(`Campus ${campusId}: ${campusUsers.length} total users, ${holders.length} holders found`);
-
-  return upsertHolders(holders);
+  return upsertHolders(campusUsers);
 }
 
 export async function syncHolders(): Promise<{ synced: number; errors: string[] }> {
