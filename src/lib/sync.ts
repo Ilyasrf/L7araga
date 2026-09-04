@@ -11,15 +11,16 @@ interface Holder42 {
   login: string;
   displayname: string;
   image?: { link?: string };
-  campus_users?: Array<{
-    campus?: { id?: number; name?: string };
-    is_primary?: boolean;
-  }>;
-  pools?: Array<{
-    pool_month?: string;
-    pool_year?: number;
-  }>;
+  pool_month?: string;
+  pool_year?: number;
 }
+
+const CAMPUS_NAMES: Record<number, string> = {
+  1: "Paris",
+  16: "Khouribga",
+  21: "Benguerir",
+  55: "Tetouan",
+};
 
 let cachedToken: { token: string; expires: number } | null = null;
 
@@ -53,24 +54,10 @@ export async function getAccessToken(): Promise<string> {
 }
 
 function extractPromo(user: Holder42): string | null {
-  if (user.pools && user.pools.length > 0) {
-    const latestPool = user.pools[0];
-    if (latestPool.pool_year) {
-      return latestPool.pool_year.toString();
-    }
+  if (user.pool_year) {
+    return user.pool_year.toString();
   }
   return null;
-}
-
-function extractCampus(user: Holder42): { name: string; id: number } {
-  const primary = user.campus_users?.find((cu) => cu.is_primary);
-  if (primary?.campus) {
-    return {
-      name: primary.campus.name || "Unknown",
-      id: primary.campus.id || 0,
-    };
-  }
-  return { name: "Unknown", id: 0 };
 }
 
 async function fetchCampusUsers(campusId: number, token: string): Promise<Holder42[]> {
@@ -87,13 +74,16 @@ async function fetchCampusUsers(campusId: number, token: string): Promise<Holder
   return response.json();
 }
 
-async function upsertHolders(holders: Holder42[]): Promise<{ synced: number; errors: string[] }> {
+async function upsertHolders(
+  holders: Holder42[],
+  campusId: number
+): Promise<{ synced: number; errors: string[] }> {
   const errors: string[] = [];
   let synced = 0;
+  const campusName = CAMPUS_NAMES[campusId] || `Campus ${campusId}`;
 
   for (const holder of holders) {
     try {
-      const campus = extractCampus(holder);
       const promo = extractPromo(holder);
 
       await prisma.achievementHolder.upsert({
@@ -102,8 +92,8 @@ async function upsertHolders(holders: Holder42[]): Promise<{ synced: number; err
           login: holder.login,
           displayName: holder.displayname,
           imageUrl: holder.image?.link || null,
-          campusName: campus.name,
-          campusId: campus.id,
+          campusName,
+          campusId,
           promo,
         },
         create: {
@@ -111,8 +101,8 @@ async function upsertHolders(holders: Holder42[]): Promise<{ synced: number; err
           login: holder.login,
           displayName: holder.displayname,
           imageUrl: holder.image?.link || null,
-          campusName: campus.name,
-          campusId: campus.id,
+          campusName,
+          campusId,
           promo,
         },
       });
@@ -132,7 +122,7 @@ export async function syncCampus(campusId: number): Promise<{ synced: number; er
 
   console.log(`Campus ${campusId}: ${campusUsers.length} users fetched`);
 
-  return upsertHolders(campusUsers);
+  return upsertHolders(campusUsers, campusId);
 }
 
 export async function syncHolders(): Promise<{ synced: number; errors: string[] }> {
