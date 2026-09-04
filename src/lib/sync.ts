@@ -136,7 +136,7 @@ export async function syncCampus(campusId: number): Promise<{ synced: number; er
 }
 
 export async function syncHolders(): Promise<{ synced: number; errors: string[] }> {
-  const campusIds = [16, 21, 43];
+  const campusIds = [16, 21, 55];
   const allErrors: string[] = [];
   let totalSynced = 0;
 
