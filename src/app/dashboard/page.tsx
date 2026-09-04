@@ -10,6 +10,7 @@ import type { AchievementHolderType } from "@/types";
 export default function DashboardPage() {
   const [holders, setHolders] = useState<AchievementHolderType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [filterCampus, setFilterCampus] = useState("All");
@@ -24,14 +25,24 @@ export default function DashboardPage() {
     if (filterPromo !== "All") params.set("promo", filterPromo);
     params.set("limit", filterLimit.toString());
 
-    const res = await fetch(`/api/holders?${params.toString()}`);
-    const data = await res.json();
-    setHolders(data);
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/holders?${params.toString()}`);
+      if (!res.ok) {
+        setError("Failed to load students. Please try again later.");
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setHolders(data);
+      setError(null);
 
-    // Extract unique promos for filter
-    const uniquePromos = Array.from(new Set(data.map((h: AchievementHolderType) => h.promo).filter(Boolean))) as string[];
-    setPromos(uniquePromos.sort().reverse());
+      const uniquePromos = Array.from(new Set(data.map((h: AchievementHolderType) => h.promo).filter(Boolean))) as string[];
+      setPromos(uniquePromos.sort().reverse());
+    } catch {
+      setError("Failed to connect to the server.");
+    } finally {
+      setLoading(false);
+    }
   }, [filterCampus, filterPromo, filterLimit]);
 
   useEffect(() => {
@@ -41,7 +52,6 @@ export default function DashboardPage() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await fetch("/api/sync");
       await fetchHolders();
     } finally {
       setIsRefreshing(false);
@@ -98,7 +108,14 @@ export default function DashboardPage() {
           />
         </motion.div>
 
-        {holders.length === 0 ? (
+        {error ? (
+          <div className="glass p-12 text-center">
+            <p className="text-red-400 text-lg mb-2">{error}</p>
+            <p className="text-white/40 text-sm">
+              Make sure the database is set up and environment variables are configured.
+            </p>
+          </div>
+        ) : holders.length === 0 ? (
           <div className="glass p-12 text-center">
             <p className="text-white/60 text-lg">
               No students found matching your filter.
