@@ -61,6 +61,55 @@ export async function GET(request: Request) {
       return NextResponse.json({ action, userId, count: data.length, data });
     }
 
+    if (action === "list_campuses") {
+      const filter = searchParams.get("filter") || "1337";
+      const response = await fetch(
+        `https://api.intra.42.fr/v2/campus?filter[name]=${filter}&per_page=30&page=1`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!response.ok) {
+        const body = await response.text();
+        return NextResponse.json({ error: `API ${response.status}: ${body}` });
+      }
+      const data: ApiUser[] = await response.json();
+      return NextResponse.json({
+        action,
+        count: data.length,
+        campuses: data.map((c) => ({
+          id: c.id,
+          name: c.name,
+          country: c.country,
+          city: c.city,
+          users_count: c.users_count,
+          active: c.active,
+        })),
+      });
+    }
+
+    if (action === "get_campus") {
+      const cid = searchParams.get("id") || "16";
+      const response = await fetch(
+        `https://api.intra.42.fr/v2/campus/${cid}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!response.ok) {
+        const body = await response.text();
+        return NextResponse.json({ error: `API ${response.status}: ${body}` });
+      }
+      const data: ApiUser = await response.json();
+      return NextResponse.json({
+        action,
+        campus: {
+          id: data.id,
+          name: data.name,
+          country: data.country,
+          city: data.city,
+          users_count: data.users_count,
+          active: data.active,
+        },
+      });
+    }
+
     return NextResponse.json({ error: "Unknown action" });
   } catch (error) {
     return NextResponse.json({ error: String(error) });
