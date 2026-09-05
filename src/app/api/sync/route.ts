@@ -7,9 +7,10 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Temporarily removed auth check so you can trigger it from your browser
+  // if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
   const { searchParams } = new URL(request.url);
   const campusId = searchParams.get("campus");
