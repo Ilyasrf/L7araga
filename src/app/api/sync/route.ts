@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { syncCampus } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Allow up to 60 seconds on Vercel
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
