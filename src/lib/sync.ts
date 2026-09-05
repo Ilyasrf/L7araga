@@ -99,9 +99,8 @@ async function fetchPage(
   return response.json();
 }
 
-// Check if a user truly belongs to a Moroccan campus
-// by verifying their primary campus is one of ours
-async function isFromMoroccanCampus(
+// Check if a user has both a Moroccan campus and Paris (campus_id: 1)
+async function isMoroccanTransferredToParis(
   userId: number,
   token: string
 ): Promise<boolean> {
@@ -110,17 +109,18 @@ async function isFromMoroccanCampus(
       `https://api.intra.42.fr/v2/users/${userId}?fields=campus_users`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    if (!response.ok) return true; // If we can't check, keep them
+    if (!response.ok) return false; // If we can't check, skip them
     const user = await response.json();
-    if (!user.campus_users || user.campus_users.length === 0) return true;
+    if (!user.campus_users || user.campus_users.length === 0) return false;
     
-    // Find the primary campus
-    const primary = user.campus_users.find((cu: CampusUser42) => cu.is_primary);
-    if (!primary) return true;
+    // Check if they have a Moroccan campus
+    const hasMoroccan = user.campus_users.some((cu: CampusUser42) => MOROCCAN_CAMPUS_IDS.has(cu.campus_id));
+    // Check if they have Paris campus (id 1)
+    const hasParis = user.campus_users.some((cu: CampusUser42) => cu.campus_id === 1);
     
-    return MOROCCAN_CAMPUS_IDS.has(primary.campus_id);
+    return hasMoroccan && hasParis;
   } catch {
-    return true; // On error, keep the user
+    return false; // On error, skip the user
   }
 }
 
@@ -167,9 +167,9 @@ async function upsertHolders(
 
   for (const holder of holders) {
     try {
-      // Filter out exchange students whose primary campus is not Moroccan
-      const isMoroccan = await isFromMoroccanCampus(holder.id, token);
-      if (!isMoroccan) {
+      // Filter out students who haven't transferred to Paris
+      const isTransferred = await isMoroccanTransferredToParis(holder.id, token);
+      if (!isTransferred) {
         skipped++;
         // Also delete them from DB if they were previously synced
         await prisma.achievementHolder.deleteMany({
@@ -206,7 +206,7 @@ async function upsertHolders(
     }
   }
 
-  console.log(`Upsert complete: ${synced} synced, ${skipped} non-Moroccan skipped`);
+  console.log(`Upsert complete: ${synced} synced, ${skipped} non-transferred skipped`);
   return { synced, errors };
 }
 
