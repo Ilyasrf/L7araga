@@ -10,7 +10,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "1337 Transfer Tracker",
+  title: "Students Tracker",
   description:
     "Moroccan 42 students who've traveled to global 42 campuses",
 };
