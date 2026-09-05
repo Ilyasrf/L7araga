@@ -6,6 +6,11 @@ interface TokenResponse {
   expires_in: number;
 }
 
+interface CampusUser42 {
+  campus_id: number;
+  is_primary: boolean;
+}
+
 interface Holder42 {
   id: number;
   login: string;
@@ -13,13 +18,17 @@ interface Holder42 {
   image?: { link?: string };
   pool_month?: string;
   pool_year?: number;
+  campus_users?: CampusUser42[];
 }
 
 const CAMPUS_NAMES: Record<number, string> = {
   16: "Khouribga",
   21: "Benguerir",
-  22: "1337 Med",
+  43: "Tetouan",
 };
+
+// Moroccan campus IDs - used to filter out exchange students
+const MOROCCAN_CAMPUS_IDS = new Set([16, 21, 43]);
 
 let cachedToken: { token: string; expires: number } | null = null;
 
@@ -90,6 +99,31 @@ async function fetchPage(
   return response.json();
 }
 
+// Check if a user truly belongs to a Moroccan campus
+// by verifying their primary campus is one of ours
+async function isFromMoroccanCampus(
+  userId: number,
+  token: string
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `https://api.intra.42.fr/v2/users/${userId}?fields=campus_users`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!response.ok) return true; // If we can't check, keep them
+    const user = await response.json();
+    if (!user.campus_users || user.campus_users.length === 0) return true;
+    
+    // Find the primary campus
+    const primary = user.campus_users.find((cu: CampusUser42) => cu.is_primary);
+    if (!primary) return true;
+    
+    return MOROCCAN_CAMPUS_IDS.has(primary.campus_id);
+  } catch {
+    return true; // On error, keep the user
+  }
+}
+
 async function fetchAllCampusUsers(
   campusId: number,
   token: string,
@@ -123,14 +157,27 @@ async function fetchAllCampusUsers(
 
 async function upsertHolders(
   holders: Holder42[],
-  campusId: number
+  campusId: number,
+  token: string
 ): Promise<{ synced: number; errors: string[] }> {
   const errors: string[] = [];
   let synced = 0;
+  let skipped = 0;
   const campusName = CAMPUS_NAMES[campusId] || `Campus ${campusId}`;
 
   for (const holder of holders) {
     try {
+      // Filter out exchange students whose primary campus is not Moroccan
+      const isMoroccan = await isFromMoroccanCampus(holder.id, token);
+      if (!isMoroccan) {
+        skipped++;
+        // Also delete them from DB if they were previously synced
+        await prisma.achievementHolder.deleteMany({
+          where: { intraId: holder.id },
+        });
+        continue;
+      }
+
       const promo = extractPromo(holder);
 
       await prisma.achievementHolder.upsert({
@@ -159,13 +206,14 @@ async function upsertHolders(
     }
   }
 
+  console.log(`Upsert complete: ${synced} synced, ${skipped} non-Moroccan skipped`);
   return { synced, errors };
 }
 
 const CAMPUS_MAX_PAGES: Record<number, number> = {
   16: 60,
   21: 50,
-  22: 30,
+  43: 30,
 };
 
 export async function syncCampus(
@@ -179,11 +227,11 @@ export async function syncCampus(
 
   console.log(`Campus ${campusId}: ${campusUsers.length} users fetched`);
 
-  return upsertHolders(campusUsers, campusId);
+  return upsertHolders(campusUsers, campusId, token);
 }
 
 export async function syncHolders(): Promise<{ synced: number; errors: string[] }> {
-  const campusIds = [16, 21, 22]; // Corrected Moroccan campus IDs
+  const campusIds = [16, 21, 43]; // Moroccan campus IDs
   const allErrors: string[] = [];
   let totalSynced = 0;
 

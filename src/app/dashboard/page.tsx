@@ -89,10 +89,10 @@ export default function DashboardPage() {
       <div className="pt-16 pb-12 px-4 max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-zinc-900 mb-2 tracking-tight">
-            Student Tracker
+            L7araga Tracker
           </h1>
           <p className="text-zinc-500 text-lg">
-            Know where your colleague is
+            Track where your fellow 1337 students are right now
           </p>
         </div>
 
