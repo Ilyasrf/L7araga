@@ -16,10 +16,9 @@ interface Holder42 {
 }
 
 const CAMPUS_NAMES: Record<number, string> = {
-  1: "Paris",
   16: "Khouribga",
   21: "Benguerir",
-  55: "Tetouan",
+  22: "1337 Med",
 };
 
 let cachedToken: { token: string; expires: number } | null = null;
@@ -65,10 +64,18 @@ async function fetchPage(
   page: number,
   token: string
 ): Promise<Holder42[]> {
-  const response = await fetch(
-    `https://api.intra.42.fr/v2/campus/${campusId}/users?per_page=100&page=${page}`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const syncMode = process.env.SYNC_MODE || "campus";
+  const achievementId = process.env.ACHIEVEMENT_ID || "";
+  
+  let url = `https://api.intra.42.fr/v2/campus/${campusId}/users?per_page=100&page=${page}`;
+  
+  if (syncMode === "achievement" && achievementId) {
+    url += `&filter[achievement_id]=${achievementId}`;
+  }
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
 
   if (response.status === 429) {
     const retryAfter = response.headers.get("Retry-After") || "2";
@@ -158,7 +165,7 @@ async function upsertHolders(
 const CAMPUS_MAX_PAGES: Record<number, number> = {
   16: 60,
   21: 50,
-  55: 15,
+  22: 30,
 };
 
 export async function syncCampus(
@@ -176,7 +183,7 @@ export async function syncCampus(
 }
 
 export async function syncHolders(): Promise<{ synced: number; errors: string[] }> {
-  const campusIds = [16, 21, 55];
+  const campusIds = [16, 21, 22]; // Corrected Moroccan campus IDs
   const allErrors: string[] = [];
   let totalSynced = 0;
 

@@ -28,16 +28,16 @@ export default function FilterBar({
   totalCount,
 }: FilterBarProps) {
   return (
-    <div className="glass p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div className="bg-white border border-zinc-200 shadow-sm rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <select
           value={selectedCampus}
           onChange={(e) => onCampusChange(e.target.value)}
-          className="glass-input text-sm"
+          className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-md focus:ring-indigo-500 focus:border-indigo-500 block px-3 py-2"
         >
-          <option value="All" className="bg-black">All Campuses</option>
+          <option value="All">All Campuses</option>
           {MOROCCAN_CAMPUSES.map((campus) => (
-            <option key={campus.id} value={campus.displayName} className="bg-black">
+            <option key={campus.id} value={campus.displayName}>
               {campus.displayName}
             </option>
           ))}
@@ -46,11 +46,11 @@ export default function FilterBar({
         <select
           value={selectedPromo}
           onChange={(e) => onPromoChange(e.target.value)}
-          className="glass-input text-sm"
+          className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-md focus:ring-indigo-500 focus:border-indigo-500 block px-3 py-2"
         >
-          <option value="All" className="bg-black">All Promos</option>
+          <option value="All">All Promos</option>
           {promos.map((promo) => (
-            <option key={promo} value={promo} className="bg-black">
+            <option key={promo} value={promo}>
               {promo}
             </option>
           ))}
@@ -59,23 +59,23 @@ export default function FilterBar({
         <select
           value={selectedLimit}
           onChange={(e) => onLimitChange(parseInt(e.target.value))}
-          className="glass-input text-sm"
+          className="bg-zinc-50 border border-zinc-300 text-zinc-900 text-sm rounded-md focus:ring-indigo-500 focus:border-indigo-500 block px-3 py-2"
         >
-          <option value={25} className="bg-black">Show 25</option>
-          <option value={50} className="bg-black">Show 50</option>
-          <option value={100} className="bg-black">Show 100</option>
+          <option value={25}>Show 25</option>
+          <option value={50}>Show 50</option>
+          <option value={100}>Show 100</option>
         </select>
 
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="glass-button text-sm disabled:opacity-50"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50"
         >
           {isRefreshing ? "Syncing..." : "Refresh"}
         </button>
       </div>
 
-      <p className="text-sm text-white/60 ml-auto">
+      <p className="text-sm text-zinc-500 ml-auto font-medium">
         {totalCount} student{totalCount !== 1 ? "s" : ""}
         {selectedCampus !== "All" ? ` at ${selectedCampus}` : ""}
       </p>

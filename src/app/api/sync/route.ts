@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const campusId = searchParams.get("campus");
 
-  const campusIds = campusId ? [parseInt(campusId)] : [16, 21, 55];
+  const campusIds = campusId ? [parseInt(campusId)] : [16, 21, 22];
   const allResults: { campusId: number; synced: number; errors: string[] }[] = [];
 
   for (const id of campusIds) {
