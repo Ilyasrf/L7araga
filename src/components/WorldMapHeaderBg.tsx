@@ -15,9 +15,16 @@ export default function WorldMapHeaderBg() {
         </svg>
 
         {/* Real World Map Vector */}
-        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <img src="/world-map.svg" alt="World Map" className="w-[1000px] h-auto grayscale contrast-200" />
-        </div>
+        <div 
+          className="absolute inset-0 w-full h-full opacity-25"
+          style={{
+            backgroundImage: 'url(/world-map.svg)',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center 14%',
+            backgroundSize: '130% auto',
+            filter: 'contrast(120%) brightness(85%)'
+          }}
+        />
 
         {/* Overlay Pins and Arcs */}
         <svg viewBox="0 0 1000 500" width="100%" height="100%" className="absolute inset-0 z-10">
@@ -25,17 +32,17 @@ export default function WorldMapHeaderBg() {
           {/* Mobility Arcs */}
           <g fill="none" stroke="#FFE600" strokeWidth="4" strokeDasharray="8 6" className="animate-pulse">
             {/* Morocco to Paris */}
-            <path d="M445,210 Q470,150 490,130" />
+            <path d="M480,224 Q485,185 506,147" />
             {/* Morocco to Amsterdam */}
-            <path d="M445,210 Q490,140 515,110" />
+            <path d="M480,224 Q490,170 512,128" />
             {/* Morocco to Lyon */}
-            <path d="M445,210 Q495,160 510,140" />
+            <path d="M480,224 Q495,190 512,162" />
             {/* Morocco to Barcelona */}
-            <path d="M445,210 Q475,180 480,165" />
+            <path d="M480,224 Q490,200 506,180" />
           </g>
 
           {/* Origin Hub (Morocco) */}
-          <g transform="translate(445, 210)">
+          <g transform="translate(480, 224)">
             <circle cx="0" cy="0" r="25" fill="#FF4D4D" opacity="0.3" className="animate-ping" style={{ animationDuration: "3s" }} />
             <circle cx="0" cy="0" r="10" fill="#FFE600" stroke="#000" strokeWidth="3" />
             <circle cx="0" cy="0" r="4" fill="#000" />
@@ -44,13 +51,13 @@ export default function WorldMapHeaderBg() {
           {/* Destination Hubs (Europe) */}
           <g stroke="#000" strokeWidth="2">
             {/* Paris */}
-            <circle cx="490" cy="130" r="6" fill="#00F0FF" />
+            <circle cx="506" cy="147" r="6" fill="#00F0FF" />
             {/* Amsterdam */}
-            <circle cx="515" cy="110" r="6" fill="#00F0FF" />
+            <circle cx="512" cy="128" r="6" fill="#00F0FF" />
             {/* Lyon */}
-            <circle cx="510" cy="140" r="6" fill="#00F0FF" />
+            <circle cx="512" cy="162" r="6" fill="#00F0FF" />
             {/* Barcelona */}
-            <circle cx="480" cy="165" r="6" fill="#00F0FF" />
+            <circle cx="506" cy="180" r="6" fill="#00F0FF" />
           </g>
         </svg>
       </div>
