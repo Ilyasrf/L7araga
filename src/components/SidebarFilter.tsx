@@ -134,7 +134,7 @@ export default function SidebarFilter({
       <button
         onClick={onRefresh}
         disabled={isRefreshing}
-        className="w-full p-3 mt-4 border-[3px] border-black bg-black text-white font-black uppercase tracking-tight shadow-[4px_4px_0px_0px_#FFE600] hover:bg-zinc-800 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#FFE600] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full p-3 mt-4 border-[3px] border-black bg-[#00F0FF] text-black font-black uppercase tracking-tight shadow-[4px_4px_0px_0px_#000] hover:bg-[#FFE600] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#000] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {isRefreshing ? "SYNCING..." : "REFRESH DATA"}
       </button>
