@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { MOROCCAN_CAMPUSES } from "@/lib/campus";
 
 interface SidebarFilterProps {
@@ -25,8 +26,26 @@ export default function SidebarFilter({
   isRefreshing,
   totalCount,
 }: SidebarFilterProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   return (
-    <aside className="w-full lg:w-80 border-b-[3px] lg:border-b-0 lg:border-r-[3px] border-black bg-white p-6 flex flex-col gap-8 lg:min-h-[calc(100vh-64px)] lg:sticky lg:top-16 z-10">
+    <aside className="w-full lg:w-80 border-b-[3px] lg:border-b-0 lg:border-r-[3px] border-black bg-white flex flex-col lg:min-h-[calc(100vh-64px)] lg:sticky lg:top-16 z-10">
+      
+      {/* Mobile Toggle Button */}
+      <div className={`lg:hidden p-4 flex justify-between items-center bg-[#F4F0EA] ${isMobileOpen ? 'border-b-[3px] border-black' : ''}`}>
+        <span className="font-black uppercase tracking-tight text-sm text-black">
+          {totalCount} Transfers
+        </span>
+        <button
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="border-[3px] border-black bg-[#FFE600] px-4 py-2 font-black uppercase text-xs shadow-[2px_2px_0px_0px_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+        >
+          {isMobileOpen ? "Close Filters" : "Open Filters"}
+        </button>
+      </div>
+
+      {/* Filter Content */}
+      <div className={`${isMobileOpen ? "flex" : "hidden"} lg:flex flex-col gap-8 p-6 h-full`}>
       
       {/* Search Input */}
       <div>
@@ -120,7 +139,7 @@ export default function SidebarFilter({
       </button>
 
       <div className="mt-auto pt-8"></div>
-
+      </div>
     </aside>
   );
 }
