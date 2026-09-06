@@ -73,19 +73,32 @@ export async function getAccessToken(): Promise<string> {
 }
 
 async function fetchAllGlobalCampuses(token: string): Promise<Record<number, string>> {
-  if (allGlobalCampuses) return allGlobalCampuses;
-  
   const map: Record<number, string> = {};
-  const response = await fetch("https://api.intra.42.fr/v2/campus?per_page=100", {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  if (response.ok) {
-    const data = await response.json();
-    for (const c of data) {
+  let page = 1;
+  let retries = 5;
+  while (true) {
+    const url = `https://api.intra.42.fr/v2/campus?per_page=100&page=${page}`;
+    const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (response.status === 429) {
+      if (retries <= 0) break;
+      const retryAfter = response.headers.get("Retry-After");
+      const sleepTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000;
+      console.log(`Rate limited on campuses. Waiting ${sleepTime}ms...`);
+      await new Promise((r) => setTimeout(r, sleepTime));
+      retries--;
+      continue;
+    }
+    if (!response.ok) break;
+    
+    const campuses = await response.json();
+    if (campuses.length === 0) break;
+    
+    for (const c of campuses) {
       map[c.id] = c.name;
     }
+    page++;
+    await new Promise((r) => setTimeout(r, 600));
   }
-  allGlobalCampuses = map;
   return map;
 }
 
@@ -109,6 +122,7 @@ async function fetchPage(
 
   if (response.status === 429) {
     const retryAfter = response.headers.get("Retry-After") || "2";
+    console.log(`Rate limited on fetchPage for campus ${campusId} page ${page}. Waiting ${retryAfter}s...`);
     await new Promise((r) => setTimeout(r, parseInt(retryAfter) * 1000));
     return fetchPage(campusId, page, token);
   }
@@ -126,7 +140,7 @@ async function fetchAllCampusUsers(
   maxPages: number
 ): Promise<Holder42[]> {
   const allUsers: Holder42[] = [];
-  const CONCURRENCY = 5;
+  const CONCURRENCY = 1;
 
   for (let batch = 0; batch < maxPages; batch += CONCURRENCY) {
     const pages = Array.from(
@@ -145,9 +159,7 @@ async function fetchAllCampusUsers(
       if (pageUsers.length < 100) return allUsers;
     }
 
-    if (batch + CONCURRENCY < maxPages) {
-      await new Promise((r) => setTimeout(r, 500));
-    }
+    await new Promise((r) => setTimeout(r, 600)); // sleep between pages to respect 2 req/s limit
   }
 
   return allUsers;
@@ -166,15 +178,17 @@ async function findGlobalTransfers(
     let page = 1;
     while (true) {
       const url = `https://api.intra.42.fr/v2/campus_users?filter[user_id]=${chunk.join(',')}&per_page=100&page=${page}`;
-      let retries = 3;
+      let retries = 10;
       let success = false;
       let campusUsers: CampusUser[] = [];
       
       while (retries > 0) {
         const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (response.status === 429) {
-          const retryAfter = response.headers.get("Retry-After") || "2";
-          await new Promise((r) => setTimeout(r, parseInt(retryAfter) * 1000));
+          const retryAfter = response.headers.get("Retry-After");
+          const sleepTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000;
+          console.log(`Rate limited on campus_users. Waiting ${sleepTime}ms...`);
+          await new Promise((r) => setTimeout(r, sleepTime));
           retries--;
           continue;
         }
@@ -236,10 +250,6 @@ async function upsertHolders(
       const destCampusId = transfers.get(holder.id);
       if (!destCampusId) {
         skipped++;
-        // Delete them from DB if they were previously synced but lost transfer status
-        await prisma.achievementHolder.deleteMany({
-          where: { intraId: holder.id },
-        });
         continue;
       }
 
@@ -331,6 +341,7 @@ export async function runSync(campusIds: number[]): Promise<{
   try {
     const deleteResult = await prisma.achievementHolder.deleteMany({
       where: {
+        campusId: { in: campusIds },
         intraId: { notIn: validIntraIds }
       }
     });
