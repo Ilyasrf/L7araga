@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 import { MOROCCAN_CAMPUSES } from "@/lib/campus";
 
 interface SidebarFilterProps {
@@ -138,8 +139,15 @@ export default function SidebarFilter({
         {isRefreshing ? "SYNCING..." : "REFRESH DATA"}
       </button>
 
-      {/* Empty space filler for bottom alignment */}
-      <div className="mt-auto pt-8"></div>
+      {/* Logout Button */}
+      <div className="mt-auto pt-8">
+        <button
+          onClick={() => signOut({ callbackUrl: '/' })}
+          className="w-full p-3 border-[3px] border-black bg-white text-black font-black uppercase tracking-tight shadow-[4px_4px_0px_0px_#000] hover:bg-[#FF4D4D] hover:text-white hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
+        >
+          LOGOUT
+        </button>
+      </div>
       </div>
     </aside>
   );
