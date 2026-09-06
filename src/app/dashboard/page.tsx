@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import SidebarFilter from "@/components/SidebarFilter";
 import StudentCard from "@/components/StudentCard";
 import StudentListRow from "@/components/StudentListRow";
+import HeaderMascot from "@/components/HeaderMascot";
 import type { AchievementHolderType } from "@/types";
 
 export default function DashboardPage() {
@@ -104,13 +105,16 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="border-b-[4px] border-black bg-white p-6 sticky top-0 z-20">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-black text-black uppercase tracking-tight">
-              Students Tracker
-            </h1>
-            <p className="font-mono font-bold text-zinc-600 uppercase text-sm mt-1">
-              Global Mobility Dashboard
-            </p>
+          <div className="flex items-end gap-3">
+            <HeaderMascot />
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-black uppercase tracking-tight">
+                STUDENTS TRACKER
+              </h1>
+              <p className="font-mono font-bold text-zinc-600 uppercase text-xs sm:text-sm mt-1">
+                Global Mobility Dashboard
+              </p>
+            </div>
           </div>
           <div className="hidden sm:block">
             <div className="bg-[#00F0FF] border-[3px] border-black px-4 py-2 font-black uppercase shadow-[4px_4px_0px_0px_#000]">

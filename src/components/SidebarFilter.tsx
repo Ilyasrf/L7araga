@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { MOROCCAN_CAMPUSES } from "@/lib/campus";
-import InteractiveEyes from "./InteractiveEyes";
 
 interface SidebarFilterProps {
   selectedCampus: string;
@@ -48,9 +47,6 @@ export default function SidebarFilter({
       {/* Filter Content */}
       <div className={`${isMobileOpen ? "flex" : "hidden"} lg:flex flex-col gap-8 p-6 h-full`}>
       
-      {/* Interactive Eyes Widget */}
-      <InteractiveEyes />
-
       {/* Search Input */}
       <div>
         <label className="block font-black uppercase tracking-tight text-sm mb-2">Search</label>
