@@ -13,9 +13,11 @@ model AchievementHolder {
   login       String   @unique
   displayName String?
   imageUrl    String?
-  campusName  String
-  campusId    Int
-  promo       String?
+  campusName            String
+  campusId              Int
+  destinationCampusId   Int?
+  destinationCampusName String?
+  promo                 String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

@@ -6,6 +6,8 @@ export interface AchievementHolderType {
   imageUrl: string | null;
   campusName: string;
   campusId: number;
+  destinationCampusId?: number | null;
+  destinationCampusName?: string | null;
   promo: string | null;
   createdAt: string;
   updatedAt: string;

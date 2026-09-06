@@ -13,6 +13,15 @@ interface Holder42 {
   image?: { link?: string };
   pool_month?: string;
   pool_year?: number;
+  "staff?"?: boolean;
+  kind?: string;
+}
+
+interface CampusUser {
+  id: number;
+  user_id: number;
+  campus_id: number;
+  is_primary: boolean;
 }
 
 const CAMPUS_NAMES: Record<number, string> = {
@@ -22,7 +31,17 @@ const CAMPUS_NAMES: Record<number, string> = {
   75: "Rabat",
 };
 
+const MOROCCAN_CAMPUS_IDS = [16, 21, 55, 75];
+
+const CAMPUS_MAX_PAGES: Record<number, number> = {
+  16: 60,
+  21: 50,
+  55: 30,
+  75: 10,
+};
+
 let cachedToken: { token: string; expires: number } | null = null;
+let allGlobalCampuses: Record<number, string> | null = null;
 
 export async function getAccessToken(): Promise<string> {
   if (cachedToken && cachedToken.expires > Date.now()) {
@@ -51,6 +70,23 @@ export async function getAccessToken(): Promise<string> {
   };
 
   return data.access_token;
+}
+
+async function fetchAllGlobalCampuses(token: string): Promise<Record<number, string>> {
+  if (allGlobalCampuses) return allGlobalCampuses;
+  
+  const map: Record<number, string> = {};
+  const response = await fetch("https://api.intra.42.fr/v2/campus?per_page=100", {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (response.ok) {
+    const data = await response.json();
+    for (const c of data) {
+      map[c.id] = c.name;
+    }
+  }
+  allGlobalCampuses = map;
+  return map;
 }
 
 function extractPromo(user: Holder42): string | null {
@@ -103,7 +139,9 @@ async function fetchAllCampusUsers(
     );
 
     for (const pageUsers of results) {
-      allUsers.push(...pageUsers);
+      // Filter out staff and admin users
+      const students = pageUsers.filter((u) => !u["staff?"] && u.kind !== "admin");
+      allUsers.push(...students);
       if (pageUsers.length < 100) return allUsers;
     }
 
@@ -115,16 +153,17 @@ async function fetchAllCampusUsers(
   return allUsers;
 }
 
-async function findParisIntersections(
+// Returns a Map of user_id -> their destination (non-Moroccan) campus ID
+async function findGlobalTransfers(
   userIds: number[],
   token: string
-): Promise<Set<number>> {
-  const parisIds = new Set<number>();
-  const chunkSize = 100; // max allowed by 42 API for filtering
+): Promise<Map<number, number>> {
+  const transferMap = new Map<number, number>();
+  const chunkSize = 100;
   
   for (let i = 0; i < userIds.length; i += chunkSize) {
     const chunk = userIds.slice(i, i + chunkSize);
-    const url = `https://api.intra.42.fr/v2/campus/1/users?filter[id]=${chunk.join(',')}&per_page=100`;
+    const url = `https://api.intra.42.fr/v2/campus_users?filter[user_id]=${chunk.join(',')}&per_page=100`;
     
     let retries = 3;
     while (retries > 0) {
@@ -136,24 +175,42 @@ async function findParisIntersections(
         continue;
       }
       if (!response.ok) {
-        throw new Error(`API ${response.status} when filtering Paris intersection`);
+        throw new Error(`API ${response.status} when filtering campus_users`);
       }
-      const users = await response.json();
-      for (const u of users) {
-        parisIds.add(u.id);
+      
+      const campusUsers: CampusUser[] = await response.json();
+      
+      // Group campus_users by user_id
+      const userCampuses = new Map<number, number[]>();
+      for (const cu of campusUsers) {
+        if (!userCampuses.has(cu.user_id)) {
+          userCampuses.set(cu.user_id, []);
+        }
+        userCampuses.get(cu.user_id)!.push(cu.campus_id);
       }
+      
+      // Check which users have a non-Moroccan campus
+      for (const [userId, campuses] of Array.from(userCampuses.entries())) {
+        const foreignCampuses = campuses.filter((id: number) => !MOROCCAN_CAMPUS_IDS.includes(id));
+        if (foreignCampuses.length > 0) {
+          // They transferred! Just take the first foreign campus as their destination
+          transferMap.set(userId, foreignCampuses[0]);
+        }
+      }
+      
       break; 
     }
-    // slight sleep to respect 2 req/s rate limit across iterations
+    // slight sleep to respect 2 req/s rate limit
     await new Promise((r) => setTimeout(r, 600)); 
   }
-  return parisIds;
+  return transferMap;
 }
 
 async function upsertHolders(
   holders: Holder42[],
   campusId: number,
-  transferredIds: Set<number>
+  transfers: Map<number, number>,
+  globalCampusesMap: Record<number, string>
 ): Promise<{ synced: number; errors: string[] }> {
   const errors: string[] = [];
   let synced = 0;
@@ -162,10 +219,10 @@ async function upsertHolders(
 
   for (const holder of holders) {
     try {
-      // Filter out students who haven't transferred to Paris
-      if (!transferredIds.has(holder.id)) {
+      const destCampusId = transfers.get(holder.id);
+      if (!destCampusId) {
         skipped++;
-        // Delete them from DB if they were previously synced but left/no longer transferred
+        // Delete them from DB if they were previously synced but lost transfer status
         await prisma.achievementHolder.deleteMany({
           where: { intraId: holder.id },
         });
@@ -173,6 +230,7 @@ async function upsertHolders(
       }
 
       const promo = extractPromo(holder);
+      const destCampusName = globalCampusesMap[destCampusId] || `Campus ${destCampusId}`;
 
       await prisma.achievementHolder.upsert({
         where: { intraId: holder.id },
@@ -182,6 +240,8 @@ async function upsertHolders(
           imageUrl: holder.image?.link || null,
           campusName,
           campusId,
+          destinationCampusId: destCampusId,
+          destinationCampusName: destCampusName,
           promo,
         },
         create: {
@@ -191,6 +251,8 @@ async function upsertHolders(
           imageUrl: holder.image?.link || null,
           campusName,
           campusId,
+          destinationCampusId: destCampusId,
+          destinationCampusName: destCampusName,
           promo,
         },
       });
@@ -200,16 +262,9 @@ async function upsertHolders(
     }
   }
 
-  console.log(`Campus ${campusId}: ${synced} synced, ${skipped} non-transferred skipped`);
+  console.log(`Campus ${campusId}: ${synced} synced, ${skipped} skipped`);
   return { synced, errors };
 }
-
-const CAMPUS_MAX_PAGES: Record<number, number> = {
-  16: 60,
-  21: 50,
-  55: 30,
-  75: 10,
-};
 
 export interface SyncResult {
   campusId: number;
@@ -224,6 +279,8 @@ export async function runSync(campusIds: number[]): Promise<{
   campuses: SyncResult[];
 }> {
   const token = await getAccessToken();
+  const globalCampusesMap = await fetchAllGlobalCampuses(token);
+  
   const campusUsersMap = new Map<number, Holder42[]>();
   const allUserIds: number[] = [];
 
@@ -233,13 +290,13 @@ export async function runSync(campusIds: number[]): Promise<{
     const users = await fetchAllCampusUsers(campusId, token, maxPages);
     campusUsersMap.set(campusId, users);
     users.forEach(u => allUserIds.push(u.id));
-    console.log(`Campus ${campusId}: ${users.length} total users fetched`);
+    console.log(`Campus ${campusId}: ${users.length} total valid users fetched`);
   }
 
-  // 2. Find which of these users also belong to Paris
-  console.log(`Checking ${allUserIds.length} Moroccan students against Paris campus...`);
-  const transferredIds = await findParisIntersections(allUserIds, token);
-  console.log(`Found ${transferredIds.size} transferred students!`);
+  // 2. Find globally transferred users
+  console.log(`Checking ${allUserIds.length} Moroccan students for global transfers...`);
+  const transfers = await findGlobalTransfers(allUserIds, token);
+  console.log(`Found ${transfers.size} globally transferred students!`);
 
   // 3. Upsert transferred users and clean up others
   const allResults: SyncResult[] = [];
@@ -248,7 +305,7 @@ export async function runSync(campusIds: number[]): Promise<{
 
   for (const campusId of campusIds) {
     const users = campusUsersMap.get(campusId) || [];
-    const result = await upsertHolders(users, campusId, transferredIds);
+    const result = await upsertHolders(users, campusId, transfers, globalCampusesMap);
     totalSynced += result.synced;
     allErrors.push(...result.errors);
     allResults.push({ campusId, ...result });
