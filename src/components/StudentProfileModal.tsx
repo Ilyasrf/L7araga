@@ -251,7 +251,7 @@ export default function StudentProfileModal({
                     @
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-base sm:text-lg font-black text-black truncate" title={profile.email || ""}>{profile.email || "Not Available"}</div>
+                    <div className="text-base sm:text-lg font-black text-black break-all">{profile.email || "Not Available"}</div>
                     <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Primary Email Address</div>
                   </div>
                 </div>
