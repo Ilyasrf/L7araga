@@ -7,6 +7,7 @@ import SidebarFilter from "@/components/SidebarFilter";
 import StudentCard from "@/components/StudentCard";
 import StudentListRow from "@/components/StudentListRow";
 import HeaderMascot from "@/components/HeaderMascot";
+import HeaderWaves from "@/components/HeaderWaves";
 import type { AchievementHolderType } from "@/types";
 
 export default function DashboardPage() {
@@ -103,15 +104,16 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#F4F0EA]">
       {/* Header */}
-      <header className="border-b-[4px] border-black bg-white p-6 sticky top-0 z-20">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+      <header className="border-b-[4px] border-black bg-[#B48EEA] p-6 sticky top-0 z-20 overflow-hidden relative">
+        <HeaderWaves />
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between relative z-10">
           <div className="flex items-end gap-3">
             <HeaderMascot />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-black uppercase tracking-tight">
+            <div className="bg-white border-[3px] border-black p-3 shadow-[4px_4px_0px_0px_#000]">
+              <h1 className="text-2xl sm:text-3xl font-black text-black uppercase tracking-tight leading-none">
                 STUDENTS TRACKER
               </h1>
-              <p className="font-mono font-bold text-zinc-600 uppercase text-xs sm:text-sm mt-1">
+              <p className="font-mono font-bold text-zinc-600 uppercase text-xs sm:text-sm mt-2 leading-none">
                 Global Mobility Dashboard
               </p>
             </div>
