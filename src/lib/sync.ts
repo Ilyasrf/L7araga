@@ -109,6 +109,9 @@ async function isMoroccanTransferredToParis(
       `https://api.intra.42.fr/v2/users/${userId}?fields=campus_users`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
+    if (response.status === 429) {
+      throw new Error("Rate limit exceeded while checking campus_users");
+    }
     if (!response.ok) return false; // If we can't check, skip them
     const user = await response.json();
     if (!user.campus_users || user.campus_users.length === 0) return false;
