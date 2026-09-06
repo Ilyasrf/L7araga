@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MOROCCAN_CAMPUSES } from "@/lib/campus";
+import DevCard from "./DevCard";
 
 interface SidebarFilterProps {
   selectedCampus: string;
@@ -138,7 +139,9 @@ export default function SidebarFilter({
         {isRefreshing ? "SYNCING..." : "REFRESH DATA"}
       </button>
 
-      <div className="mt-auto pt-8"></div>
+      <div className="mt-auto pt-8">
+        <DevCard />
+      </div>
       </div>
     </aside>
   );
