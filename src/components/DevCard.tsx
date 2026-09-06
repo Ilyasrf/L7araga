@@ -25,15 +25,7 @@ export default function DevCard() {
       </div>
 
       {/* Social / Portfolio Links */}
-      <div className="grid grid-cols-3 gap-1.5 pt-1">
-        <a
-          href="https://profile.intra.42.fr/users/irfei"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center py-1 border border-black bg-white font-mono text-[10px] font-black uppercase shadow-[1px_1px_0px_0px_#000] hover:bg-[#00F0FF] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
-        >
-          INTRA
-        </a>
+      <div className="grid grid-cols-2 gap-1.5 pt-1">
         <a
           href="https://github.com/Ilyasrf"
           target="_blank"
