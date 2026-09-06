@@ -12,22 +12,15 @@ export default function WorldMapHeaderBg() {
             <circle cx="2" cy="2" r="1.5" fill="#000" opacity="0.2" />
           </pattern>
           <rect width="100%" height="100%" fill="url(#dotGrid)" />
+        </svg>
 
-          {/* Stylized Angular/Brutalist Continents */}
-          <g fill="#FFF" stroke="#000" strokeWidth="3" strokeLinejoin="miter" opacity="0.7">
-            {/* North America */}
-            <path d="M120,80 L280,60 L350,140 L280,260 L200,240 L150,180 Z" />
-            {/* South America */}
-            <path d="M280,260 L360,300 L320,440 L240,360 Z" />
-            {/* Europe */}
-            <path d="M440,90 L560,60 L620,150 L500,180 L460,140 Z" />
-            {/* Africa */}
-            <path d="M460,170 L580,180 L600,300 L500,380 L420,260 Z" />
-            {/* Asia */}
-            <path d="M560,60 L800,40 L880,180 L700,260 L600,150 Z" />
-            {/* Oceania */}
-            <path d="M750,320 L860,300 L820,420 L700,380 Z" />
-          </g>
+        {/* Real World Map Vector */}
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
+          <img src="/world-map.svg" alt="World Map" className="w-[1000px] h-auto grayscale contrast-200" />
+        </div>
+
+        {/* Overlay Pins and Arcs */}
+        <svg viewBox="0 0 1000 500" width="100%" height="100%" className="absolute inset-0 z-10">
 
           {/* Mobility Arcs */}
           <g fill="none" stroke="#FFE600" strokeWidth="4" strokeDasharray="8 6" className="animate-pulse">
