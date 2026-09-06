@@ -6,7 +6,7 @@ export default function DevCard() {
       {/* Label & Status */}
       <div className="flex items-center justify-between border-b border-black pb-1">
         <span className="font-mono text-[10px] font-black uppercase tracking-wider text-black">
-          ⚡ CRAFTED BY
+          CRAFTED BY
         </span>
         <span className="inline-block w-2 h-2 rounded-full bg-[#00E575] border border-black animate-pulse" />
       </div>

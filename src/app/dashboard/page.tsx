@@ -7,6 +7,7 @@ import SidebarFilter from "@/components/SidebarFilter";
 import StudentCard from "@/components/StudentCard";
 import StudentListRow from "@/components/StudentListRow";
 import HeaderMascot from "@/components/HeaderMascot";
+import DevCard from "@/components/DevCard";
 import type { AchievementHolderType } from "@/types";
 
 export default function DashboardPage() {
@@ -118,10 +119,8 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="hidden sm:block">
-            <div className="bg-[#00F0FF] border-[3px] border-black px-4 py-2 font-black uppercase shadow-[4px_4px_0px_0px_#000]">
-              42 NETWORK
-            </div>
+          <div className="hidden sm:block min-w-[240px]">
+            <DevCard />
           </div>
         </div>
       </header>
