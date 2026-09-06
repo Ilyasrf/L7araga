@@ -53,7 +53,6 @@ export default function StudentProfileModal({
     } else {
       if (dialog.open) dialog.close();
       document.body.style.overflow = "auto";
-      // Clear state when closing
       setTimeout(() => {
         setProfile(null);
         setError(null);
@@ -88,7 +87,7 @@ export default function StudentProfileModal({
 
   const getCampusDisplayString = () => {
     if (originCampusName && destinationCampusName) {
-      return `${originCampusName} -> ${destinationCampusName}`;
+      return `${originCampusName} ➔ ${destinationCampusName}`;
     }
     return destinationCampusName || originCampusName || "Unknown Campus";
   };
@@ -97,170 +96,163 @@ export default function StudentProfileModal({
     <dialog
       ref={dialogRef}
       onClick={handleBackdropClick}
-      className="p-0 bg-transparent backdrop:bg-black/60 backdrop:backdrop-blur-sm transition-all rounded-xl shadow-2xl max-w-5xl w-[95vw] md:w-full overflow-hidden"
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+      className="p-0 bg-transparent backdrop:bg-white/80 transition-all max-w-3xl w-[95vw] md:w-full overflow-visible"
     >
-      <div className="bg-[#0f1015] text-zinc-100 border border-zinc-800 rounded-xl overflow-hidden flex flex-col md:flex-row relative min-h-[500px]">
-        {/* Close button */}
+      <div className="bg-white border-[4px] border-black shadow-[10px_10px_0px_0px_#000] relative flex flex-col md:flex-row min-h-[500px]">
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+          className="absolute -top-4 -right-4 z-20 w-10 h-10 flex items-center justify-center bg-[#FF4D4D] border-2 border-black font-mono font-black text-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
+          aria-label="Close modal"
         >
-          ✕
+          X
         </button>
 
         {loading && !profile ? (
           <div className="w-full flex items-center justify-center py-20">
-            <div className="text-zinc-500 flex flex-col items-center gap-4">
-              <div className="w-8 h-8 border-4 border-zinc-800 border-t-red-500 rounded-full animate-spin" />
-              <p>Loading {login}&#39;s profile...</p>
+            <div className="text-black font-mono font-bold uppercase tracking-widest flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-black border-t-[#FFE600] animate-spin" />
+              <p>LOADING {login}...</p>
             </div>
           </div>
         ) : error ? (
           <div className="w-full flex items-center justify-center py-20">
-            <div className="text-red-400">{error}</div>
+            <div className="bg-[#FF4D4D] border-2 border-black p-4 shadow-[4px_4px_0px_0px_#000] text-black font-mono font-bold">
+              {error}
+            </div>
           </div>
         ) : profile ? (
           <>
-            {/* Left Sidebar - Profile Picture & Nav (mimicking original UI) */}
-            <div className="w-full md:w-[280px] bg-[#0A0A0E] p-6 flex flex-col border-b md:border-b-0 md:border-r border-zinc-800/50">
-              <div className="text-[10px] text-zinc-500 tracking-widest font-semibold mb-6">PROFILE</div>
-              
-              <div className="flex flex-col items-center mt-4 mb-8">
-                <div className="w-32 h-32 relative mb-4">
-                  {profile.imageUrl ? (
-                    <Image
-                      src={profile.imageUrl}
-                      alt={profile.login}
-                      fill
-                      className="object-cover border-2 border-[#1c1d24]"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-4xl font-bold text-zinc-500 border border-[#1c1d24]">
-                      {profile.login[0].toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div className="text-sm tracking-wider font-semibold uppercase text-zinc-200 mb-1">{profile.login}</div>
-                <div className="text-xs text-zinc-400">{profile.level.toFixed(2)}</div>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className={`w-2 h-2 rounded-full ${profile.active ? 'bg-green-500' : 'bg-zinc-600'}`}></div>
-                  <span className="text-[10px] text-zinc-500 tracking-wider font-medium uppercase">{profile.active ? 'ONLINE' : 'OFFLINE'}</span>
-                </div>
+            {/* Left Section: Avatar & Action */}
+            <div className="w-full md:w-[280px] bg-[#F4F0EA] border-b-[4px] md:border-b-0 md:border-r-[4px] border-black p-6 flex flex-col items-center">
+              <div className="text-sm text-black font-black uppercase tracking-tight mb-6 w-full text-left">
+                PROFILE IDENTITY
               </div>
               
-              <div className="mt-auto pt-8 border-t border-zinc-800/50">
-                <button className="w-full text-[10px] uppercase tracking-widest text-zinc-400 hover:text-white transition-colors flex items-center gap-2">
-                  <span className="text-red-500">↗</span> 42 PROFILE
-                </button>
+              <div className="w-40 h-40 relative mb-4">
+                {profile.imageUrl ? (
+                  <Image
+                    src={profile.imageUrl}
+                    alt={profile.login}
+                    fill
+                    className="object-cover border-4 border-black shadow-[4px_4px_0px_0px_#000]"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#FFE600] flex items-center justify-center text-6xl font-black text-black border-4 border-black shadow-[4px_4px_0px_0px_#000]">
+                    {profile.login[0].toUpperCase()}
+                  </div>
+                )}
+                {/* Status Badge */}
+                <div 
+                  className={`absolute -bottom-3 -right-3 font-mono text-[12px] font-black uppercase tracking-widest px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_#000] ${
+                    profile.active ? "bg-[#00E575] text-black" : "bg-[#FF4D4D] text-white"
+                  }`}
+                >
+                  {profile.active ? 'ONLINE' : 'OFFLINE'}
+                </div>
+              </div>
+
+              <div className="text-2xl font-black uppercase tracking-tight text-black mt-4 text-center">
+                {profile.displayName}
+              </div>
+              <div className="font-mono font-bold text-lg text-zinc-600 mb-1">
+                @{profile.login}
+              </div>
+
+              <div className="mt-2 text-center">
+                <span className="bg-[#FFE600] border-2 border-black px-2 py-0.5 font-mono text-xs font-bold shadow-[2px_2px_0px_0px_#000]">
+                  LVL {profile.level.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="mt-auto w-full pt-8">
+                {/* Working External Link */}
+                <a
+                  href={`https://profile.intra.42.fr/users/${profile.login}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 border-[3px] border-black bg-[#FFE600] px-4 py-3 font-mono font-black text-sm uppercase shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
+                >
+                  ↗ OPEN 42 INTRA PROFILE
+                </a>
               </div>
             </div>
 
-            {/* Right Content */}
-            <div className="flex-1 bg-[#0f1015] flex flex-col overflow-y-auto">
+            {/* Right Section: Details Grid */}
+            <div className="flex-1 bg-white p-6 md:p-8 flex flex-col gap-6 overflow-y-auto">
               
-              {/* Top Bar - Header & Progress */}
-              <div className="p-6 md:p-8 border-b border-zinc-800/50">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-2 h-2 rounded-full ${profile.active ? 'bg-green-500' : 'bg-zinc-600'}`}></div>
-                      <span className="text-[10px] text-zinc-500 tracking-wider font-medium uppercase">{profile.active ? 'ONLINE' : 'OFFLINE'}</span>
-                      <span className="text-zinc-600">|</span>
-                      <span className="text-sm tracking-widest font-semibold uppercase text-white">{profile.login}</span>
-                    </div>
-                    <h1 className="text-xl font-medium tracking-wide text-zinc-200 uppercase">{profile.displayName}</h1>
-                  </div>
-                </div>
-
-                <div className="mb-2">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] text-red-500 tracking-widest font-bold uppercase">RANK</span>
-                    <span className="text-sm font-medium text-white">{profile.level.toFixed(2)}</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-[#1c1d24] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]" 
-                      style={{ width: `${(profile.level % 1 * 100)}%` }}
-                    />
-                  </div>
-                </div>
+              <div className="text-sm text-black font-black uppercase tracking-tight mb-2">
+                METRICS & ROUTING
               </div>
 
-              <div className="p-6 md:p-8 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                {/* 3 Columns Top Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Account Type */}
-                  <div className="border border-zinc-800/50 bg-[#14151a] p-4 flex flex-col justify-between">
-                    <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-3">ACCOUNT TYPE</div>
-                    <div>
-                      <div className="text-lg font-medium text-white mb-1 capitalize">{profile.kind}</div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest">STUDENT ACCOUNT</div>
-                    </div>
-                  </div>
-                  
-                  {/* Evaluation Points */}
-                  <div className="border border-zinc-800/50 bg-[#14151a] p-4 flex flex-col justify-between">
-                    <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-3">EVALUATION POINTS</div>
-                    <div>
-                      <div className="text-lg font-medium text-white mb-1">{profile.correctionPoints}</div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest">AVAILABLE FOR CORRECTIONS</div>
-                    </div>
-                  </div>
-                  
-                  {/* Wallet Balance */}
-                  <div className="border border-zinc-800/50 bg-[#14151a] p-4 flex flex-col justify-between">
-                    <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-3">WALLET BALANCE</div>
-                    <div>
-                      <div className="text-lg font-medium text-white mb-1">{profile.wallet}</div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest">DIGITAL CREDITS</div>
-                    </div>
+                {/* Account Type */}
+                <div className="border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000] flex flex-col justify-between">
+                  <div className="text-xs text-black font-black uppercase tracking-tight mb-2">Account Type</div>
+                  <div>
+                    <div className="text-xl font-black text-black capitalize">{profile.kind}</div>
+                    <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Student Account</div>
                   </div>
                 </div>
 
-                {/* Pool Information */}
-                <div className="border border-zinc-800/50 bg-[#14151a] p-5">
-                  <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-4">POOL INFORMATION</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest mb-1">POOL PERIOD</div>
-                      <div className="text-sm font-medium text-white capitalize">{profile.poolMonth || "?"} {profile.poolYear || ""}</div>
-                    </div>
-                    <div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest mb-1">CURRENT LOCATION</div>
-                      <div className="text-sm font-medium text-white">{profile.location || "Not Available"}</div>
-                    </div>
+                {/* Pool Info */}
+                <div className="border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000] flex flex-col justify-between">
+                  <div className="text-xs text-black font-black uppercase tracking-tight mb-2">Pool Information</div>
+                  <div>
+                    <div className="text-xl font-black text-black capitalize">{profile.poolMonth || "?"} {profile.poolYear || ""}</div>
+                    <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Period</div>
                   </div>
                 </div>
 
-                {/* Campus Details */}
-                <div className="border border-zinc-800/50 bg-[#14151a] p-5">
-                  <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-4">CAMPUS DETAILS</div>
-                  <div className="flex justify-between items-center">
+                {/* Evaluation Points */}
+                <div className="border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000] flex flex-col justify-between">
+                  <div className="text-xs text-black font-black uppercase tracking-tight mb-2">Evaluation Points</div>
+                  <div>
+                    <div className="text-xl font-black text-black">{profile.correctionPoints}</div>
+                    <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Available for corrections</div>
+                  </div>
+                </div>
+
+                {/* Wallet Balance */}
+                <div className="border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000] flex flex-col justify-between">
+                  <div className="text-xs text-black font-black uppercase tracking-tight mb-2">Wallet Balance</div>
+                  <div>
+                    <div className="text-xl font-black text-black">{profile.wallet}</div>
+                    <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Digital Credits</div>
+                  </div>
+                </div>
+
+                {/* Campus Details (Full Width) */}
+                <div className="sm:col-span-2 border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000]">
+                  <div className="text-xs text-black font-black uppercase tracking-tight mb-2">Campus Details</div>
+                  <div className="flex justify-between items-end">
                     <div>
-                      <div className="text-sm font-medium text-white mb-1">{getCampusDisplayString()}</div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest">CAMPUS</div>
+                      <div className="text-xl font-black text-black bg-[#00F0FF] border-2 border-black inline-block px-2 py-1 shadow-[2px_2px_0px_0px_#000]">
+                        {getCampusDisplayString()}
+                      </div>
+                      <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-2">Routing</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest mb-1">STATUS</div>
+                      <div className="font-mono text-sm font-bold text-black uppercase mb-1">Status</div>
                       <div className="flex items-center gap-2 justify-end">
-                        <div className={`w-1.5 h-1.5 rounded-full ${profile.active ? 'bg-green-500' : 'bg-zinc-600'}`}></div>
-                        <div className="text-sm font-medium text-white uppercase">{profile.active ? 'ACTIVE' : 'INACTIVE'}</div>
+                        <div className={`w-3 h-3 border border-black shadow-[1px_1px_0px_0px_#000] ${profile.active ? 'bg-[#00E575]' : 'bg-[#FF4D4D]'}`}></div>
+                        <div className="font-black uppercase text-black">{profile.active ? 'Active' : 'Inactive'}</div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Contact Information */}
-                <div className="border border-zinc-800/50 bg-[#14151a] p-5">
-                  <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-4">CONTACT INFORMATION</div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 border border-zinc-700 bg-zinc-800/50 flex items-center justify-center text-zinc-400 font-medium">@</div>
-                    <div>
-                      <div className="text-sm font-medium text-white mb-1">{profile.email || "Not Available"}</div>
-                      <div className="text-[9px] text-zinc-500 uppercase tracking-widest">PRIMARY EMAIL ADDRESS</div>
-                    </div>
+                {/* Contact Information (Full Width) */}
+                <div className="sm:col-span-2 border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000] flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#D4A5FF] border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-black font-black text-xl">
+                    @
+                  </div>
+                  <div>
+                    <div className="text-lg font-black text-black truncate">{profile.email || "Not Available"}</div>
+                    <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Primary Email Address</div>
                   </div>
                 </div>
 
