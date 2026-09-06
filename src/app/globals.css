@@ -7,3 +7,20 @@
     @apply bg-zinc-50 text-zinc-900 font-sans antialiased;
   }
 }
+
+@layer utilities {
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.1) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}

@@ -8,6 +8,7 @@ import StudentCard from "@/components/StudentCard";
 import StudentListRow from "@/components/StudentListRow";
 import HeaderMascot from "@/components/HeaderMascot";
 import DevCard from "@/components/DevCard";
+import WorldMapHeaderBg from "@/components/WorldMapHeaderBg";
 import type { AchievementHolderType } from "@/types";
 
 export default function DashboardPage() {
@@ -104,7 +105,9 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#F4F0EA]">
       {/* Header */}
-      <header className="border-b-[4px] border-black bg-[#B48EEA] p-6 relative z-20">
+      <header className="border-b-[4px] border-black bg-[#B48EEA] p-6 relative z-20 overflow-hidden">
+        <WorldMapHeaderBg />
+        
         <div className="max-w-[1600px] mx-auto flex items-center justify-between relative z-10">
           <div className="flex items-end gap-3">
             <HeaderMascot />
