@@ -49,6 +49,7 @@ export function getCampusFlag(campusName: string): string {
     "Mulhouse": "🇫🇷",
     "Nice": "🇫🇷",
     "Angoulême": "🇫🇷",
+    "Angouleme": "🇫🇷",
     "Le Havre": "🇫🇷",
     "Perpignan": "🇫🇷",
     
@@ -84,6 +85,7 @@ export function getCampusFlag(campusName: string): string {
     "Amsterdam": "🇳🇱",
     "Codam": "🇳🇱",
     "Brussels": "🇧🇪",
+    "Belgium": "🇧🇪",
     "19": "🇧🇪",
     
     // Asia & Middle East

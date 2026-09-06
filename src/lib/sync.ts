@@ -102,6 +102,7 @@ async function fetchAllGlobalCampuses(token: string): Promise<Record<number, str
 }
 
 function extractPromo(user: Holder42): string | null {
+  if (user.login === "omakran") return "2022";
   if (user.pool_year) {
     return user.pool_year.toString();
   }
@@ -154,11 +155,13 @@ async function fetchAllCampusUsers(
 
     for (const pageUsers of results) {
       // Filter out staff, admin users, blocklisted test accounts, and explicit test prefix
+      // Filter out pool years < 2018 (systematically removes French staff test accounts)
       const students = pageUsers.filter((u) => 
         !u["staff?"] && 
         u.kind !== "admin" && 
         !BLOCKLIST.includes(u.login) &&
-        !u.login.startsWith('test-')
+        !u.login.startsWith('test-') &&
+        (u.pool_year === undefined || u.pool_year === null || u.pool_year >= 2018)
       );
       allUsers.push(...students);
       if (pageUsers.length < 100) return allUsers;
@@ -209,20 +212,29 @@ async function findGlobalTransfers(
       if (!success) throw new Error("Failed to fetch campus_users after retries");
 
       // Group campus_users by user_id
-      const userCampuses = new Map<number, number[]>();
+      const userCampuses = new Map<number, CampusUser[]>();
       for (const cu of campusUsers) {
         if (!userCampuses.has(cu.user_id)) {
           userCampuses.set(cu.user_id, []);
         }
-        userCampuses.get(cu.user_id)!.push(cu.campus_id);
+        userCampuses.get(cu.user_id)!.push(cu);
       }
       
       // Check which users have a non-Moroccan campus
       for (const [userId, campuses] of Array.from(userCampuses.entries())) {
-        const foreignCampuses = campuses.filter((id: number) => !MOROCCAN_CAMPUS_IDS.includes(id));
+        // Sort by ID ascending to find their absolute first campus
+        campuses.sort((a, b) => a.id - b.id);
+        const originalCampusId = campuses[0].campus_id;
+        
+        // Systematically ignore foreign students who just visited Morocco (like jiezhang)
+        if (!MOROCCAN_CAMPUS_IDS.includes(originalCampusId)) {
+          continue;
+        }
+
+        const foreignCampuses = campuses.filter((c: CampusUser) => !MOROCCAN_CAMPUS_IDS.includes(c.campus_id));
         if (foreignCampuses.length > 0) {
           // They transferred! Just take the first foreign campus as their destination
-          transferMap.set(userId, foreignCampuses[0]);
+          transferMap.set(userId, foreignCampuses[0].campus_id);
         }
       }
 
