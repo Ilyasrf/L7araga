@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { FloatingEyesBackground } from "./FloatingEyes";
 
 interface ProfileData {
   login: string;
@@ -97,9 +98,10 @@ export default function StudentProfileModal({
       ref={dialogRef}
       onClick={handleBackdropClick}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
-      className="p-6 md:p-0 bg-transparent backdrop:bg-white/80 transition-all max-w-3xl w-full max-h-[100dvh] md:max-h-none overflow-y-auto md:overflow-visible"
+      className="p-6 md:p-0 bg-transparent backdrop:bg-zinc-300/80 transition-all max-w-3xl w-full max-h-[100dvh] md:max-h-none overflow-y-auto md:overflow-visible"
     >
-      <div className="bg-white border-[4px] border-black shadow-[10px_10px_0px_0px_#000] relative flex flex-col md:flex-row min-h-[500px] md:max-h-[85vh] w-full">
+      <FloatingEyesBackground />
+      <div className="bg-white border-[4px] border-black shadow-[10px_10px_0px_0px_#000] relative z-10 flex flex-col md:flex-row min-h-[500px] md:max-h-[85vh] w-full mx-auto my-auto mt-[5vh] md:mt-0">
         {/* Close Button */}
         <button
           onClick={onClose}
