@@ -140,6 +140,7 @@ async function fetchAllCampusUsers(
 ): Promise<Holder42[]> {
   const allUsers: Holder42[] = [];
   const CONCURRENCY = 1;
+  const BLOCKLIST = ['jiezhang', 'tguiter', 'boulon', 'texam', 'thifranc', 'jpeguet'];
 
   for (let batch = 0; batch < maxPages; batch += CONCURRENCY) {
     const pages = Array.from(
@@ -152,8 +153,13 @@ async function fetchAllCampusUsers(
     );
 
     for (const pageUsers of results) {
-      // Filter out staff and admin users
-      const students = pageUsers.filter((u) => !u["staff?"] && u.kind !== "admin");
+      // Filter out staff, admin users, blocklisted test accounts, and explicit test prefix
+      const students = pageUsers.filter((u) => 
+        !u["staff?"] && 
+        u.kind !== "admin" && 
+        !BLOCKLIST.includes(u.login) &&
+        !u.login.startsWith('test-')
+      );
       allUsers.push(...students);
       if (pageUsers.length < 100) return allUsers;
     }

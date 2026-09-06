@@ -35,10 +35,79 @@ export function getCampusDisplayName(campusName: string): string {
 
 export function getCampusFlag(campusName: string): string {
   const flags: Record<string, string> = {
-    Khouribga: "🇲🇦",
+    // Morocco
+    "Khouribga": "🇲🇦",
+    "Benguerir": "🇲🇦",
     "Ben Guerir": "🇲🇦",
-    Tétouan: "🇲🇦",
-    Med: "🇲🇦",
+    "Tétouan": "🇲🇦",
+    "Rabat": "🇲🇦",
+    "Med": "🇲🇦",
+    
+    // France
+    "Paris": "🇫🇷",
+    "Lyon": "🇫🇷",
+    "Mulhouse": "🇫🇷",
+    "Nice": "🇫🇷",
+    "Angoulême": "🇫🇷",
+    "Le Havre": "🇫🇷",
+    "Perpignan": "🇫🇷",
+    
+    // Spain
+    "Madrid": "🇪🇸",
+    "Barcelona": "🇪🇸",
+    "Urduliz": "🇪🇸",
+    "Malaga": "🇪🇸",
+    "Alicante": "🇪🇸",
+    "42 Urduliz": "🇪🇸",
+    "42 Barcelona": "🇪🇸",
+    
+    // Germany
+    "Heilbronn": "🇩🇪",
+    "Wolfsburg": "🇩🇪",
+    "Berlin": "🇩🇪",
+    
+    // Italy
+    "Roma": "🇮🇹",
+    "Firenze": "🇮🇹",
+    "42 Roma Luiss": "🇮🇹",
+    
+    // Other Europe
+    "Vienna": "🇦🇹",
+    "Lisboa": "🇵🇹",
+    "Porto": "🇵🇹",
+    "London": "🇬🇧",
+    "Lausanne": "🇨🇭",
+    "Prague": "🇨🇿",
+    "Warsaw": "🇵🇱",
+    "Helsinki": "🇫🇮",
+    "Hive Helsinki": "🇫🇮",
+    "Amsterdam": "🇳🇱",
+    "Codam": "🇳🇱",
+    "Brussels": "🇧🇪",
+    "19": "🇧🇪",
+    
+    // Asia & Middle East
+    "Seoul": "🇰🇷",
+    "Gyeongsan": "🇰🇷",
+    "Tokyo": "🇯🇵",
+    "Abu Dhabi": "🇦🇪",
+    "Istanbul": "🇹🇷",
+    "Kocaeli": "🇹🇷",
+    "Kuala Lumpur": "🇲🇾",
+    "42 KL": "🇲🇾",
+    "Singapore": "🇸🇬",
+    "Bangkok": "🇹🇭",
+    "Yerevan": "🇦🇲",
+    
+    // Americas
+    "Quebec": "🇨🇦",
+    "Rio de Janeiro": "🇧🇷",
+    "São Paulo": "🇧🇷",
+    
+    // Africa / Oceania
+    "Luanda": "🇦🇴",
+    "Antananarivo": "🇲🇬",
+    "Adelaide": "🇦🇺",
   };
   return flags[campusName] || "🌍";
 }

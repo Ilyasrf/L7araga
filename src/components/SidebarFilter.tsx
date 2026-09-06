@@ -4,31 +4,25 @@ import { MOROCCAN_CAMPUSES } from "@/lib/campus";
 
 interface SidebarFilterProps {
   selectedCampus: string;
-  selectedPromo: string;
   searchQuery: string;
   viewMode: "grid" | "list";
   onCampusChange: (campus: string) => void;
-  onPromoChange: (promo: string) => void;
   onSearchChange: (query: string) => void;
   onViewModeChange: (mode: "grid" | "list") => void;
   onRefresh: () => void;
   isRefreshing: boolean;
-  promos: string[];
   totalCount: number;
 }
 
 export default function SidebarFilter({
   selectedCampus,
-  selectedPromo,
   searchQuery,
   viewMode,
   onCampusChange,
-  onPromoChange,
   onSearchChange,
   onViewModeChange,
   onRefresh,
   isRefreshing,
-  promos,
   totalCount,
 }: SidebarFilterProps) {
   return (
@@ -76,35 +70,18 @@ export default function SidebarFilter({
         </div>
       </div>
 
-      {/* Promo Filter */}
+      {/* Mobility Summary Counter */}
       <div>
-        <label className="block font-black uppercase tracking-tight text-sm mb-2">Promo Year</label>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => onPromoChange("All")}
-            className={`p-2 border-[3px] border-black font-mono font-bold text-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#000] ${
-              selectedPromo === "All"
-                ? "bg-[#D4A5FF] shadow-[2px_2px_0px_0px_#000]"
-                : "bg-white hover:bg-zinc-50 shadow-[2px_2px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px]"
-            }`}
-          >
-            ALL
-          </button>
-          {promos.map((promo) => (
-            <button
-              key={promo}
-              onClick={() => onPromoChange(promo)}
-              className={`p-2 border-[3px] border-black font-mono font-bold text-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#000] ${
-                selectedPromo === promo
-                  ? "bg-[#D4A5FF] shadow-[2px_2px_0px_0px_#000]"
-                  : "bg-white hover:bg-zinc-50 shadow-[2px_2px_0px_0px_#000] hover:translate-x-[-1px] hover:translate-y-[-1px]"
-              }`}
-            >
-              {promo}
-            </button>
-          ))}
+        <div className="border-[3px] border-black bg-[#FF4D4D] p-4 text-center shadow-[4px_4px_0px_0px_#000]">
+          <div className="font-mono font-bold text-3xl text-white drop-shadow-[2px_2px_0px_#000]">
+            {totalCount}
+          </div>
+          <div className="font-black uppercase tracking-tight text-black mt-1">
+            Transfers Detected
+          </div>
         </div>
       </div>
+
 
       {/* View Switcher */}
       <div>
@@ -142,17 +119,7 @@ export default function SidebarFilter({
         {isRefreshing ? "SYNCING..." : "REFRESH DATA"}
       </button>
 
-      {/* Mobility Summary Counter */}
-      <div className="mt-auto pt-8">
-        <div className="border-[3px] border-black bg-[#FF4D4D] p-4 text-center shadow-[4px_4px_0px_0px_#000]">
-          <div className="font-mono font-bold text-3xl text-white drop-shadow-[2px_2px_0px_#000]">
-            {totalCount}
-          </div>
-          <div className="font-black uppercase tracking-tight text-black mt-1">
-            Transfers Detected
-          </div>
-        </div>
-      </div>
+      <div className="mt-auto pt-8"></div>
 
     </aside>
   );

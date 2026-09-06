@@ -18,12 +18,9 @@ export default function DashboardPage() {
 
   // Initialize selectedCampus to "All" initially, will update once session loads
   const [filterCampus, setFilterCampus] = useState("All");
-  const [filterPromo, setFilterPromo] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const filterLimit = 500; // Increase limit to fetch more data for client-side search
-
-  const [promos, setPromos] = useState<string[]>([]);
   const [hasInitializedCampus, setHasInitializedCampus] = useState(false);
 
   // Session-Aware Defaulting
@@ -44,7 +41,6 @@ export default function DashboardPage() {
     
     const params = new URLSearchParams();
     if (filterCampus !== "All") params.set("campus", filterCampus);
-    if (filterPromo !== "All") params.set("promo", filterPromo);
     params.set("limit", filterLimit.toString());
 
     setLoading(true);
@@ -57,15 +53,12 @@ export default function DashboardPage() {
       const data = await res.json();
       setHolders(data);
       setError(null);
-
-      const uniquePromos = Array.from(new Set(data.map((h: AchievementHolderType) => h.promo).filter(Boolean))) as string[];
-      setPromos(uniquePromos.sort().reverse());
     } catch {
       setError("Failed to connect to the server.");
     } finally {
       setLoading(false);
     }
-  }, [filterCampus, filterPromo, filterLimit, hasInitializedCampus]);
+  }, [filterCampus, filterLimit, hasInitializedCampus]);
 
   useEffect(() => {
     if (status === "authenticated" && hasInitializedCampus) {
@@ -133,16 +126,13 @@ export default function DashboardPage() {
         {/* Left Sidebar */}
         <SidebarFilter
           selectedCampus={filterCampus}
-          selectedPromo={filterPromo}
           searchQuery={searchQuery}
           viewMode={viewMode}
           onCampusChange={setFilterCampus}
-          onPromoChange={setFilterPromo}
           onSearchChange={setSearchQuery}
           onViewModeChange={setViewMode}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
-          promos={promos}
           totalCount={filteredHolders.length}
         />
 
