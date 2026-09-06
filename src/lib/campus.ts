@@ -7,7 +7,8 @@ export interface CampusInfo {
 export const MOROCCAN_CAMPUSES: CampusInfo[] = [
   { id: 16, name: "Khouribga", displayName: "Khouribga" },
   { id: 21, name: "Benguerir", displayName: "Benguerir" },
-  { id: 43, name: "Tetouan", displayName: "Tetouan" },
+  { id: 55, name: "Tétouan", displayName: "Tétouan" },
+  { id: 75, name: "Rabat", displayName: "Rabat" },
 ];
 
 export const CAMPUS_MAP: Record<number, CampusInfo> = Object.fromEntries(

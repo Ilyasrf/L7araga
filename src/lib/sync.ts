@@ -18,7 +18,8 @@ interface Holder42 {
 const CAMPUS_NAMES: Record<number, string> = {
   16: "Khouribga",
   21: "Benguerir",
-  43: "Tetouan",
+  55: "Tétouan",
+  75: "Rabat",
 };
 
 let cachedToken: { token: string; expires: number } | null = null;
@@ -206,7 +207,8 @@ async function upsertHolders(
 const CAMPUS_MAX_PAGES: Record<number, number> = {
   16: 60,
   21: 50,
-  43: 30,
+  55: 30,
+  75: 10,
 };
 
 export interface SyncResult {
