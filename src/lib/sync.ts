@@ -41,7 +41,6 @@ const CAMPUS_MAX_PAGES: Record<number, number> = {
 };
 
 let cachedToken: { token: string; expires: number } | null = null;
-let allGlobalCampuses: Record<number, string> | null = null;
 
 export async function getAccessToken(): Promise<string> {
   if (cachedToken && cachedToken.expires > Date.now()) {
