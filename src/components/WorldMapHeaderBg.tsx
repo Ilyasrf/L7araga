@@ -20,7 +20,7 @@ export default function WorldMapHeaderBg() {
           style={{
             backgroundImage: 'url(/world-map.svg)',
             backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center 14%',
+            backgroundPosition: 'center 200px',
             backgroundSize: '130% auto',
             filter: 'contrast(120%) brightness(85%)'
           }}
@@ -32,17 +32,17 @@ export default function WorldMapHeaderBg() {
           {/* Mobility Arcs */}
           <g fill="none" stroke="#FFE600" strokeWidth="4" strokeDasharray="8 6" className="animate-pulse">
             {/* Morocco to Paris */}
-            <path d="M480,224 Q485,185 506,147" />
+            <path d="M481,417 Q485,370 507,340" />
             {/* Morocco to Amsterdam */}
-            <path d="M480,224 Q490,170 512,128" />
+            <path d="M481,417 Q490,360 514,321" />
             {/* Morocco to Lyon */}
-            <path d="M480,224 Q495,190 512,162" />
+            <path d="M481,417 Q495,380 514,355" />
             {/* Morocco to Barcelona */}
-            <path d="M480,224 Q490,200 506,180" />
+            <path d="M481,417 Q490,390 507,373" />
           </g>
 
           {/* Origin Hub (Morocco) */}
-          <g transform="translate(480, 224)">
+          <g transform="translate(481, 417)">
             <circle cx="0" cy="0" r="25" fill="#FF4D4D" opacity="0.3" className="animate-ping" style={{ animationDuration: "3s" }} />
             <circle cx="0" cy="0" r="10" fill="#FFE600" stroke="#000" strokeWidth="3" />
             <circle cx="0" cy="0" r="4" fill="#000" />
@@ -51,13 +51,13 @@ export default function WorldMapHeaderBg() {
           {/* Destination Hubs (Europe) */}
           <g stroke="#000" strokeWidth="2">
             {/* Paris */}
-            <circle cx="506" cy="147" r="6" fill="#00F0FF" />
+            <circle cx="507" cy="340" r="6" fill="#00F0FF" />
             {/* Amsterdam */}
-            <circle cx="512" cy="128" r="6" fill="#00F0FF" />
+            <circle cx="514" cy="321" r="6" fill="#00F0FF" />
             {/* Lyon */}
-            <circle cx="512" cy="162" r="6" fill="#00F0FF" />
+            <circle cx="514" cy="355" r="6" fill="#00F0FF" />
             {/* Barcelona */}
-            <circle cx="506" cy="180" r="6" fill="#00F0FF" />
+            <circle cx="507" cy="373" r="6" fill="#00F0FF" />
           </g>
         </svg>
       </div>
