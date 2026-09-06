@@ -247,11 +247,11 @@ export default function StudentProfileModal({
 
                 {/* Contact Information (Full Width) */}
                 <div className="sm:col-span-2 border-[3px] border-black bg-[#F4F0EA] p-4 shadow-[2px_2px_0px_0px_#000] flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#D4A5FF] border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-black font-black text-xl">
+                  <div className="shrink-0 w-12 h-12 bg-[#D4A5FF] border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-black font-black text-xl">
                     @
                   </div>
-                  <div>
-                    <div className="text-lg font-black text-black truncate">{profile.email || "Not Available"}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-base sm:text-lg font-black text-black truncate" title={profile.email || ""}>{profile.email || "Not Available"}</div>
                     <div className="font-mono text-xs text-zinc-600 uppercase font-bold mt-1">Primary Email Address</div>
                   </div>
                 </div>
