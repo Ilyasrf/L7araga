@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { getAccessToken } from "@/lib/sync";
+import rateLimit from "@/lib/rate-limit";
+
+const limiter = rateLimit({
+  interval: 60000, // 1 minute
+  uniqueTokenPerInterval: 500, // Max 500 unique users per minute
+});
 
 export const dynamic = "force-dynamic";
 
@@ -13,24 +19,39 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Rate Limiting (using session email as token, or IP if available)
+  const userToken = session.user?.email || "anonymous";
+  try {
+    await limiter.check(20, userToken); // 20 requests per minute per user
+  } catch {
+    return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+  }
+
   const login = params.login;
   if (!login) {
     return NextResponse.json({ error: "Missing login parameter" }, { status: 400 });
   }
 
+  // Input Validation (OWASP A03)
+  if (!/^[a-zA-Z0-9_-]+$/.test(login)) {
+    return NextResponse.json({ error: "Invalid login format" }, { status: 400 });
+  }
+
   try {
-    const token = await getAccessToken();
+    const accessToken = await getAccessToken();
 
     // Fetch user details from 42 API
     const res = await fetch(`https://api.intra.42.fr/v2/users/${login}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!res.ok) {
       if (res.status === 404) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
-      throw new Error(`42 API responded with status: ${res.status}`);
+      // Log the actual error for debugging, but don't leak it to the client
+      console.error(`Upstream 42 API error: status ${res.status}`);
+      throw new Error(`Upstream API failed`);
     }
 
     const userData = await res.json();
@@ -57,9 +78,10 @@ export async function GET(
 
     return NextResponse.json(profileData);
   } catch (error) {
+    // Sanitize the error (OWASP A02)
     console.error(`Failed to fetch profile for ${login}:`, error);
     return NextResponse.json(
-      { error: "Failed to fetch student profile" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

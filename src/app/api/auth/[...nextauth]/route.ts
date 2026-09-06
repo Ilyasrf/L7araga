@@ -8,6 +8,10 @@ const handler = NextAuth({
       clientSecret: process.env.FORTY_TWO_CLIENT_SECRET!,
     }),
   ],
+  useSecureCookies: process.env.NODE_ENV === "production",
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: "/",
   },
