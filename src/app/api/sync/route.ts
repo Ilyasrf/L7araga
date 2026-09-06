@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { syncCampus } from "@/lib/sync";
+import { runSync } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // Allow up to 60 seconds on Vercel
@@ -13,32 +13,21 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const campusId = searchParams.get("campus");
+  const campusIdParam = searchParams.get("campus");
+  const campusIds = campusIdParam ? [parseInt(campusIdParam)] : [16, 21, 43];
 
-  const campusIds = campusId ? [parseInt(campusId)] : [16, 21, 43];
-  const allResults: { campusId: number; synced: number; errors: string[] }[] = [];
-
-  for (const id of campusIds) {
-    try {
-      const result = await syncCampus(id);
-      allResults.push({ campusId: id, ...result });
-    } catch (error) {
-      allResults.push({
-        campusId: id,
-        synced: 0,
-        errors: [error instanceof Error ? error.message : String(error)],
-      });
-    }
+  let result;
+  try {
+    result = await runSync(campusIds);
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 
-  const totalSynced = allResults.reduce((sum, r) => sum + r.synced, 0);
-  const allErrors = allResults.flatMap((r) => r.errors);
-
   return NextResponse.json({
-    success: allErrors.length === 0 || totalSynced > 0,
-    synced: totalSynced,
-    errors: allErrors,
-    campuses: allResults,
+    ...result,
     timestamp: new Date().toISOString(),
   });
 }
