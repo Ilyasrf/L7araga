@@ -61,6 +61,7 @@ export default function StudentCard({ holder }: StudentCardProps) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         destinationCampusName={holder.destinationCampusName}
+        originCampusName={holder.campusName}
       />
     </>
   );

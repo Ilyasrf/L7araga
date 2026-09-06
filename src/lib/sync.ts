@@ -163,23 +163,32 @@ async function findGlobalTransfers(
   
   for (let i = 0; i < userIds.length; i += chunkSize) {
     const chunk = userIds.slice(i, i + chunkSize);
-    const url = `https://api.intra.42.fr/v2/campus_users?filter[user_id]=${chunk.join(',')}&per_page=100`;
-    
-    let retries = 3;
-    while (retries > 0) {
-      const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-      if (response.status === 429) {
-        const retryAfter = response.headers.get("Retry-After") || "2";
-        await new Promise((r) => setTimeout(r, parseInt(retryAfter) * 1000));
-        retries--;
-        continue;
-      }
-      if (!response.ok) {
-        throw new Error(`API ${response.status} when filtering campus_users`);
-      }
+    let page = 1;
+    while (true) {
+      const url = `https://api.intra.42.fr/v2/campus_users?filter[user_id]=${chunk.join(',')}&per_page=100&page=${page}`;
+      let retries = 3;
+      let success = false;
+      let campusUsers: CampusUser[] = [];
       
-      const campusUsers: CampusUser[] = await response.json();
-      
+      while (retries > 0) {
+        const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (response.status === 429) {
+          const retryAfter = response.headers.get("Retry-After") || "2";
+          await new Promise((r) => setTimeout(r, parseInt(retryAfter) * 1000));
+          retries--;
+          continue;
+        }
+        if (!response.ok) {
+          throw new Error(`API ${response.status} when filtering campus_users`);
+        }
+        
+        campusUsers = await response.json();
+        success = true;
+        break; 
+      }
+
+      if (!success) throw new Error("Failed to fetch campus_users after retries");
+
       // Group campus_users by user_id
       const userCampuses = new Map<number, number[]>();
       for (const cu of campusUsers) {
@@ -197,10 +206,15 @@ async function findGlobalTransfers(
           transferMap.set(userId, foreignCampuses[0]);
         }
       }
-      
-      break; 
+
+      if (campusUsers.length < 100) {
+        break; // No more pages for this chunk
+      }
+      page++;
+      await new Promise((r) => setTimeout(r, 600)); // sleep between pages
     }
-    // slight sleep to respect 2 req/s rate limit
+    
+    // slight sleep to respect 2 req/s rate limit between chunks
     await new Promise((r) => setTimeout(r, 600)); 
   }
   return transferMap;
@@ -309,6 +323,21 @@ export async function runSync(campusIds: number[]): Promise<{
     totalSynced += result.synced;
     allErrors.push(...result.errors);
     allResults.push({ campusId, ...result });
+  }
+
+  // 4. Final DB Cleanup: delete any records in DB that are not in the current transfers map
+  // This removes staff/admin or students who lost transfer status entirely
+  const validIntraIds = Array.from(transfers.keys());
+  try {
+    const deleteResult = await prisma.achievementHolder.deleteMany({
+      where: {
+        intraId: { notIn: validIntraIds }
+      }
+    });
+    console.log(`Cleaned up ${deleteResult.count} stale records from database.`);
+  } catch (error) {
+    console.error("Failed to clean up stale records:", error);
+    allErrors.push(`Cleanup error: ${error}`);
   }
 
   return {

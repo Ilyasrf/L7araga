@@ -40,6 +40,7 @@ export async function GET(
 
     const profileData = {
       login: userData.login,
+      email: userData.email || null,
       displayName: userData.displayname,
       imageUrl: userData.image?.link || null,
       wallet: userData.wallet,
