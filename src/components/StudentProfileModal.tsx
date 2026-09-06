@@ -97,9 +97,9 @@ export default function StudentProfileModal({
       ref={dialogRef}
       onClick={handleBackdropClick}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
-      className="p-0 bg-transparent backdrop:bg-white/80 transition-all max-w-3xl w-[95vw] md:w-full overflow-visible"
+      className="p-6 md:p-0 bg-transparent backdrop:bg-white/80 transition-all max-w-3xl w-full max-h-[100dvh] md:max-h-none overflow-y-auto md:overflow-visible"
     >
-      <div className="bg-white border-[4px] border-black shadow-[10px_10px_0px_0px_#000] relative flex flex-col md:flex-row min-h-[500px]">
+      <div className="bg-white border-[4px] border-black shadow-[10px_10px_0px_0px_#000] relative flex flex-col md:flex-row min-h-[500px] md:max-h-[85vh] w-full">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -181,7 +181,7 @@ export default function StudentProfileModal({
             </div>
 
             {/* Right Section: Details Grid */}
-            <div className="flex-1 bg-white p-6 md:p-8 flex flex-col gap-6 overflow-y-auto">
+            <div className="flex-1 bg-white p-6 md:p-8 flex flex-col gap-6 md:overflow-y-auto">
               
               <div className="text-sm text-black font-black uppercase tracking-tight mb-2">
                 METRICS & ROUTING
